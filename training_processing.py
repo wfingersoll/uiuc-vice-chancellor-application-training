@@ -26,7 +26,7 @@ def clean_data(data):
         person["completions"] = completions
     return data
                     
-
+# This function determines whether or not a given date resides in a given fiscal year
 def check_timestamp(fiscal_year, date):
     fiscal_year_start = datetime.datetime.strptime(
         f"07/01/{str(int(fiscal_year)-1)}", '%m/%d/%Y')
@@ -37,16 +37,18 @@ def check_timestamp(fiscal_year, date):
 
     return fiscal_year_start <= date_to_check <= fiscal_year_end
 
-
+# This is a helper function to determine whether or not a training has expired
 def check_expiration(expiration, date, month):
     range_end = datetime.datetime.strptime(date, '%m/%d/%Y')
 
+    # Calculating exactly one month (30 days by default) prior to the given date
     month_diff = range_end.day - month
     range_start_month = range_end.month if month_diff > 0 else (range_end.month - 1 if range_end.month>1 else 12)
     range_start_year = range_end.year if range_start_month<range_end.month else range_end.year-1
     range_start_day = month_diff if month_diff > 0 \
           else calendar.monthrange(range_start_year, range_start_month)[1] + month_diff
     
+    # On the rare leap year occurence we simply adjust one day forward for the start of the range.
     if range_start_day <= 0:
         range_start_day = 1
 
@@ -59,7 +61,7 @@ def check_expiration(expiration, date, month):
         return "expires soon"
     return None
 
-
+# This function finds all completed trainings and tallies them
 def get_completed_trainings(data):
     completed_trainings = {}
 
@@ -75,7 +77,7 @@ def get_completed_trainings(data):
     json.dump(completed_trainings, out, indent="")
     out.close()
 
-
+# This function finds all trainings completed during a certain fiscal year
 def get_trainings_completed_in_year(trainings, fiscal_year, data):
     people = {}
 
@@ -91,6 +93,7 @@ def get_trainings_completed_in_year(trainings, fiscal_year, data):
     json.dump(people, out, indent="")
     out.close()
 
+# This function determines whether or not a training is about to, or has, expired.
 # By default a 'month' is defined as 30 days, but can be easily adjusted.
 def get_expired_trainings(data, date, month=30):
     people = {}
